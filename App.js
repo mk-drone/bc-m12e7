@@ -1,27 +1,42 @@
-// OGÓLNA FUNKCJA
-function randomString() {
-	var chars = '0123456789abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXTZ'.split();
-	var str = '', i;
-	for (i = 0; i < 10; i++) {
-	  str += chars[Math.floor(Math.random() * chars.length)];
-	}
-	return str;
+//API CONFIG
+let baseUrl = 'https://kodilla.com/pl/bootcamp-api';
+let myHeaders = {
+    'X-Client-Id': '2687',
+    'X-Auth-Token': '7bc058969036b5b598992ab80ef54fda'
+};
+
+function init(){
+    $.ajaxSetup({
+        headers: myHeaders
+    })
 }
 
-// TWORZENIE NOWYCH EGZEMPLARZY KOLUMN
-var todoColumn = new Column('Do zrobienia');
-var doingColumn = new Column('W trakcie');
-var doneColumn = new Column('Skończone');
+function getBoard(){
+    $.ajax({
+        url: `${baseUrl}/board`,
+        method: 'GET',
+        success: function(response) {
+          setupColumns(response.columns);
+        }
+    });
+}
 
-// DODAWANIE KOLUMN DO TABLICY
-board.createColumn(todoColumn);
-board.createColumn(doingColumn);
-board.createColumn(doneColumn);
+function setupColumns(cols){
+    cols.forEach((item) => {
+        let column = new Column(item.id, item.name);
+        board.createColumn(column);
+        setupCards(column, item.cards);
+    });
+}
 
-// TWORZENIE NOWYCH EGZEMPLARZY KART
-var card1 = new Card('Nowe zadanie');
-var card2 = new Card('stworzyc tablice kanban');
+function setupCards(column, cards){
+    cards.forEach((item) =>{
+        let card = new Card(item.id, item.name, item.bootcamp_kanban_column_id);
+        column.createCard(card);
+    });
+}
 
-// DODAWANIE KART DO KOLUMN
-todoColumn.createCard(card1);
-doingColumn.createCard(card2);
+//Setup Ajax
+init();
+
+getBoard();
