@@ -1,8 +1,8 @@
-function Column(name) {
+function Column(id, name) {
 	var self = this;
 	
-	this.id = randomString();
-	this.name = name;
+	this.id = id;
+	this.name = name || 'noname';
 	this.element = createColumn();
 
 	function createColumn() {
@@ -19,8 +19,20 @@ function Column(name) {
 		});
 		
 		columnAddCard.click(function(event) {
-			event.preventDefault();
-			self.createCard(new Card(prompt("Wpisz nazwę karty")));
+            event.preventDefault();
+            let cardName = prompt("Wpisz nazwę karty");
+            $.ajax({
+                url: `${baseUrl}/card/`,
+                method: 'POST',
+                data: {
+                    bootcamp_kanban_column_id: self.id, 
+                    name: cardName
+                },
+                success: (resp)=>{
+                    self.createCard(new Card(resp.id,cardName));
+                }
+            })
+
 		});
 			
 			// KONSTRUOWANIE ELEMENTU KOLUMNY
@@ -36,6 +48,13 @@ Column.prototype = {
 	  this.element.children('ul').append(card.element);
 	},
 	deleteColumn: function() {
-	  this.element.remove();
+        $.ajax({
+            url: `${baseUrl}/column/${this.id}`,
+            method: 'DELETE',
+            success: (resp)=>{
+                this.element.remove();
+            }
+        })
+      
 	}
 };

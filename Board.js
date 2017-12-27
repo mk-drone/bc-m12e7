@@ -1,15 +1,26 @@
 var board = {
 	name: 'Tablica Kanban',
 	createColumn: function(column) {
-	  this.element.append(column.element);
-	  initSortable();
+        
+        this.element.append(column.element);
+        initSortable();
 	},
 	element: $('#board .column-container')
 };
 
 $('.create-column')
 	.click(function(){
-		board.createColumn(new Column(prompt('Wpisz nazwę kolumny')));
+        let columnName = prompt('Wpisz nazwę kolumny');
+        $.ajax({
+            url: `${baseUrl}/column`,
+            method: 'POST',
+            data: {
+                name: columnName
+            },  
+            success: (resp)=>{
+                board.createColumn(new Column(resp.id, columnName));
+            }
+        });
 	});
 	
 function initSortable() {
